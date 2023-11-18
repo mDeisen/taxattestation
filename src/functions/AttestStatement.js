@@ -10,7 +10,7 @@ app.http('AttestStatementJs', {
     authLevel: 'anonymous',
     handler: async (request, context) => {
 
-        //Debug only
+        //Debug only - pass file by location or form directly
         const filePath = path.join(__dirname, '../../', 'test', 'dl_de_22.pdf');
         const fileStream = fs.createReadStream(filePath);
 
@@ -27,14 +27,16 @@ app.http('AttestStatementJs', {
 
 
        try {
-            // Calculate the file hash
+            // Calculate the file hash & convert to bytes32
             const contentHash = await calculateFileHash(fileStream);
             const contentHashBytes32 = '0x'+ contentHash;
 
+            // Setup schema data
             const schemaEncoder = new SchemaEncoder("bytes32 contentHash");
             const encodedData = schemaEncoder.encodeData([
                 { name: "contentHash", value: contentHashBytes32, type: "bytes32" }
             ]);
+
             const tx = await eas.attest({
                 schema: contentHashSchemaUID,
                 data: {
@@ -49,7 +51,7 @@ app.http('AttestStatementJs', {
             return { body: `AttestationUID ${newAttestationUID}!` };
 
         } catch (error) {
-            context.log('Error calculating file hash:', error);
+            context.log('Error attesting statement:', error);
             return { body: 'Error processing file', status: 500 };
         }
 
