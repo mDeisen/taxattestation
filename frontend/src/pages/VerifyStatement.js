@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import SHA256 from 'crypto-js/sha256';
 import CryptoJS from 'crypto-js';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import Container from '@mui/material/Container';
+import { useDropzone } from 'react-dropzone';
 
 const VerifyStatement = () => {
   const [file, setFile] = useState(null);
@@ -50,24 +54,41 @@ const VerifyStatement = () => {
     }
   };
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">Verify Statement</h2>
-      <div>
-        <label className="block text-sm font-medium text-gray-700">PDF Document</label>
-        <input 
-          type="file" 
-          onChange={e => setFile(e.target.files[0])} 
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm"
-        />
+  const MyDropzone = () => {
+    const onDrop = (acceptedFiles) => {
+      // Only taking the first file for simplicity
+      const file = acceptedFiles[0];
+      setFile(file); // Update the file state in VerifyStatement
+    };
+
+    const { getRootProps, getInputProps } = useDropzone({ onDrop });
+
+    return (
+      <div {...getRootProps()} style={{ border: '2px dashed gray', padding: '20px', textAlign: 'center' }}>
+        <input {...getInputProps()} />
+        <p>Drag or click to select a file</p>
+        {/* Display the filename if a file is selected */}
+        {file && <div style={{ marginTop: '10px' }}>Selected file: {file.name}</div>}
       </div>
-      <button 
-        type="submit" 
-        className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-700"
-      >
-        Initiate Verification
-      </button>
-    </form>
+    );
+  };
+
+  return (
+    <Container maxWidth="sm" style={{ maxWidth: '33.33%', marginTop: '20px' }}>
+      <form onSubmit={handleSubmit}>
+        <h2>Verify Statement</h2>
+        <Grid container spacing={2} alignItems="center" justifyContent="center">
+          <Grid item xs={12}>
+            <MyDropzone />
+          </Grid>
+          <Grid item xs={12}>
+            <Button variant="contained" color="primary" type="submit" fullWidth>
+              Verify Statement 
+            </Button>
+          </Grid>
+        </Grid>
+      </form>
+    </Container>
   );
 };
 

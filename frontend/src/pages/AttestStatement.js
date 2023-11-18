@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import SHA256 from 'crypto-js/sha256';
 import CryptoJS from 'crypto-js';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Grid from '@mui/material/Grid';
+import Container from '@mui/material/Container';
+import { useDropzone } from 'react-dropzone';
 
-const AttestStatement = () => {
+function AttestStatement() {
   const [file, setFile] = useState(null);
   const [address, setAddress] = useState('');
 
@@ -21,7 +26,7 @@ const AttestStatement = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const callAttestStatement = async (e) => {
     e.preventDefault();
 
     if (!file || !address) {
@@ -36,9 +41,10 @@ const AttestStatement = () => {
       });
 
       if (response.ok) {
-        const responseBody = await response.json(); // Assuming JSON response
+        const responseBody = await response.json();
         console.log("Response body:", responseBody);
-        alert("Attestation successful: " + responseBody.message); // Accessing the message property
+        alert("Attestation successful: " + responseBody.message); // Accessing the message property (attestationUID)
+        window.open(`https://sepolia.easscan.org/attestation/view/${responseBody.message}`, '_blank'); 
       } else {
         console.error("Error in attestation: ", response.statusText);
         alert("Error in attestation: " + response.statusText);
@@ -49,37 +55,62 @@ const AttestStatement = () => {
     }
   };
 
+  const MyDropzone = () => {
+    const onDrop = useCallback((acceptedFiles) => {
+      // Only taking the first file for simplicity
+      const file = acceptedFiles[0];
+      setFile(file); // Update the file state in AttestStatement
+    }, []);
+
+    const { getRootProps, getInputProps } = useDropzone({ onDrop });
+
+    return (
+      <div {...getRootProps()} style={{ border: '2px dashed gray', padding: '20px', textAlign: 'center' }}>
+        <input {...getInputProps()} />
+        <p>Drag or click to select a file</p>
+        {/* Display the filename if a file is selected */}
+        {file && <div style={{ marginTop: '10px' }}>Selected file: {file.name}</div>}
+      </div>
+    );
+  };
+
+  const handleAddressChange = (event) => {
+    setAddress(event.target.value);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await callAttestStatement(e); // Pass the event object here
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form onSubmit={handleSubmit} className="p-10 bg-white rounded-lg shadow-xl">
-        <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">Attest Statement</h2>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">PDF Document</label>
-          <input
-            type="file"
-            onChange={e => setFile(e.target.files[0])}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Recipient Address</label>
-          <input
-            type="text"
-            value={address}
-            onChange={e => setAddress(e.target.value)}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm"
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          Submit
-        </button>
+    <Container maxWidth="sm" style={{ maxWidth: '33.33%', marginTop: '20px' }}>
+      <form onSubmit={handleSubmit}>
+        <h2>Attest Statement</h2>
+        <Grid container spacing={2} alignItems="center" justifycontent="center">
+          <Grid item xs={12}>
+            <MyDropzone />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              label="Recipient Address"
+              id="recipient-address"
+              name="recipientaddress"
+              value={address}
+              onChange={handleAddressChange}
+              fullWidth
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Button variant="contained" color="primary" type="submit" fullWidth>
+              Submit
+            </Button>
+          </Grid>
+        </Grid>
       </form>
-    </div>
+    </Container>
   );
-};
+}
 
 export default AttestStatement;
