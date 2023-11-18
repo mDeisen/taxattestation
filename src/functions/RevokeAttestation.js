@@ -1,6 +1,7 @@
 const { app } = require('@azure/functions');
 const { EAS } = require("@ethereum-attestation-service/eas-sdk");
 const { ethers } = require("ethers");
+const { setupEas } = require('./utils/SetupEas.js');
 
 /**
  * Azure Function for revoking an attestation.
@@ -17,17 +18,8 @@ app.http('RevokeAttestation', {
             return { body: 'No attestationUID provided', status: 400 };
         }
 
-        // Environment variables for blockchain configurations
-        const networkUrl = process.env.NETWORK_URL;
-        const easContractAddress = process.env.EAS_CONTRACT_ADDRESS;
-
-        // Setting up Ethereum provider and signer
-        const provider = new ethers.JsonRpcProvider(networkUrl);
-        const signer = new ethers.Wallet(process.env.WALLET_PRIVATE_KEY, provider);
-
         // Initialize Ethereum Attestation Service (EAS) and connect with the signer
-        const eas = new EAS(easContractAddress);
-        eas.connect(signer);
+        const eas = setupEas();
 
         try {
             // Send revoke attestation transaction

@@ -3,6 +3,7 @@ const { EAS, SchemaEncoder } = require("@ethereum-attestation-service/eas-sdk");
 const { ethers } = require("ethers");
 const fs = require('fs');
 const calculateFileHash = require('./utils/CalculateFileHash.js');
+const { setupEas } = require('./utils/SetupEas.js');
 const path = require('path');
 
 /**
@@ -19,18 +20,11 @@ app.http('AttestStatementJs', {
         const fileStream = fs.createReadStream(filePath);
 
         // Environment variables for blockchain configurations
-        const networkUrl = process.env.NETWORK_URL;
-        const easContractAddress = process.env.EAS_CONTRACT_ADDRESS;
         const contentHashSchemaUID = process.env.CONTENT_HASH_SCHEMA_UID;
         const recipient = process.env.RECIPIENT;
 
-        // Setting up Ethereum provider and signer
-        const provider = new ethers.JsonRpcProvider(networkUrl);
-        const signer = new ethers.Wallet(process.env.WALLET_PRIVATE_KEY, provider);
-
         // Initialize Ethereum Attestation Service (EAS) and connect with the signer
-        const eas = new EAS(easContractAddress);
-        eas.connect(signer);
+        const eas = setupEas();
 
         try {
             // Calculate the file hash and convert to bytes32 format
