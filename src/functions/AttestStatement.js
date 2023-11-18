@@ -5,55 +5,66 @@ const fs = require('fs');
 const calculateFileHash = require('./utils/CalculateFileHash.js');
 const path = require('path');
 
+/**
+ * Azure Function for creating attestations for a document.
+ * It calculates the hash of a provided file and creates an attestation with this hash
+ * in the blockchain.
+ */
 app.http('AttestStatementJs', {
     methods: ['GET', 'POST'],
     authLevel: 'anonymous',
     handler: async (request, context) => {
-
-        //Debug only - pass file by location or form directly
+        // Debug only: Path to the test file
         const filePath = path.join(__dirname, '../../', 'test', 'dl_de_22.pdf');
         const fileStream = fs.createReadStream(filePath);
 
+        // Environment variables for blockchain configurations
         const networkUrl = process.env.NETWORK_URL;
-        const provider = new ethers.JsonRpcProvider(networkUrl);
-
         const easContractAddress = process.env.EAS_CONTRACT_ADDRESS;
         const contentHashSchemaUID = process.env.CONTENT_HASH_SCHEMA_UID;
+        const recipient = process.env.RECIPIENT;
+
+        // Setting up Ethereum provider and signer
+        const provider = new ethers.JsonRpcProvider(networkUrl);
         const signer = new ethers.Wallet(process.env.WALLET_PRIVATE_KEY, provider);
 
+        // Initialize Ethereum Attestation Service (EAS) and connect with the signer
         const eas = new EAS(easContractAddress);
-
         eas.connect(signer);
 
-
-       try {
-            // Calculate the file hash & convert to bytes32
+        try {
+            // Calculate the file hash and convert to bytes32 format
             const contentHash = await calculateFileHash(fileStream);
-            const contentHashBytes32 = '0x'+ contentHash;
+            const contentHashBytes32 = '0x' + contentHash;
 
-            // Setup schema data
+            // Setup schema data for attestation
             const schemaEncoder = new SchemaEncoder("bytes32 contentHash");
             const encodedData = schemaEncoder.encodeData([
                 { name: "contentHash", value: contentHashBytes32, type: "bytes32" }
             ]);
 
+            // Send attestation transaction
             const tx = await eas.attest({
                 schema: contentHashSchemaUID,
                 data: {
-                    recipient: "0x324F3A98fC8567A147d013fC2869c33d2B373645",
+                    recipient: recipient,
                     expirationTime: 0,
-                    revocable: true, // Be aware that if your schema is not revocable, this MUST be false
+                    revocable: true, // This must match your schema's revocability
                     data: encodedData,
                 },
             });
+
+            // Wait for the transaction to be mined
             const newAttestationUID = await tx.wait();
             context.log(`AttestationUID ${newAttestationUID}!`);
+
+            // Return the Attestation UID in the response
             return { body: `AttestationUID ${newAttestationUID}!` };
 
         } catch (error) {
+            // Log and return error details
             context.log('Error attesting statement:', error);
             return { body: 'Error processing file', status: 500 };
         }
-
     }
 });
