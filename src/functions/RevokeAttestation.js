@@ -6,6 +6,7 @@ const { setupEas } = require('./utils/SetupEas.js');
 /**
  * Azure Function for revoking an attestation.
  * It takes an attestation UID as input and revokes that attestation on the blockchain.
+ * Sample call on loacalhosted functions: localhost:7071/api/revokeattestation/0xe02e3e69d932250eb3050b97d68265301ce7d93ba9a986884700368b8661c86c
  */
 app.http('RevokeAttestation', {
     methods: ['GET'],

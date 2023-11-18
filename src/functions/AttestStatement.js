@@ -16,7 +16,7 @@ app.http('AttestStatementJs', {
     authLevel: 'anonymous',
     handler: async (request, context) => {
         // Debug only: Path to the test file
-        const filePath = path.join(__dirname, '../../', 'test', 'dl_de_22.pdf');
+        const filePath = path.join(__dirname, '../../', 'test', 'dl_en_22.pdf');
         const fileStream = fs.createReadStream(filePath);
 
         // Environment variables for blockchain configurations
