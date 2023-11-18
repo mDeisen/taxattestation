@@ -35,7 +35,15 @@ app.http('RevokeAttestation', {
             await tx.wait();
 
             context.log(`Attestation ${attestationUID} revoked successfully.`);
-            return { body: `Attestation ${attestationUID} revoked successfully.` };
+
+            return {
+                body: JSON.stringify({ message: `Attestation ${attestationUID} revoked successfully.` }),
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*', // Allows access from any origin
+                }
+            }
 
         } catch (error) {
             // Log and return error details

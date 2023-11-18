@@ -11,11 +11,11 @@ const path = require('path');
  * It calculates the hash of a provided file and creates an attestation with this hash
  * in the blockchain.
  */
-app.http('AttestStatementJs', {
+app.http('AttestStatement', {
     methods: ['GET', 'POST'],
     authLevel: 'anonymous',
     handler: async (request, context) => {
-        // Debug only: Path to the test file
+        // Debug only: Path to the test file -> Pass file via request later
         const filePath = path.join(__dirname, '../../', 'test', 'dl_en_22.pdf');
         const fileStream = fs.createReadStream(filePath);
 
