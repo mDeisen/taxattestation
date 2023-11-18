@@ -21,9 +21,14 @@ app.http('RevokeAttestation', {
         // Initialize Ethereum Attestation Service (EAS) and connect with the signer
         const eas = setupEas();
 
+        const schemaValue = process.env.CONTENT_HASH_SCHEMA_UID;
+
         try {
             // Send revoke attestation transaction
-            const tx = await eas.revoke({ uid: attestationUID });
+            const tx = await eas.revoke({
+                schema: schemaValue,
+                data: { uid: attestationUID }
+            });
 
             // Wait for transaction
             await tx.wait();
