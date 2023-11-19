@@ -55,7 +55,7 @@ app.http('AttestStatementHash', {
 
             // Return the Attestation UID in the response
             return {
-                body: JSON.stringify({ message: `AttestationUID ${newAttestationUID}!` }),
+                body: JSON.stringify({ message: `${newAttestationUID}` }),
                 status: 200,
                 headers: {
                     'Content-Type': 'application/json',

@@ -43,7 +43,7 @@ function AttestStatement() {
       if (response.ok) {
         const responseBody = await response.json();
         console.log("Response body:", responseBody);
-        alert("Attestation successful: " + responseBody.message); // Accessing the message property (attestationUID)
+        alert("Attestation successful! UID: " + responseBody.message); // Accessing the message property (attestationUID)
         window.open(`https://sepolia.easscan.org/attestation/view/${responseBody.message}`, '_blank'); 
       } else {
         console.error("Error in attestation: ", response.statusText);

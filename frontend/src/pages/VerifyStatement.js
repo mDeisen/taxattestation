@@ -43,7 +43,7 @@ const VerifyStatement = () => {
       if (response.ok) {
         const responseBody = await response.json(); // Assuming JSON response
         console.log("Verification result: ", responseBody);
-        alert("Verification successful: " + responseBody.message);
+        alert(responseBody.message);
       } else {
         console.error("Error in verification: ", response.statusText);
         alert("Error in verification: " + response.statusText);

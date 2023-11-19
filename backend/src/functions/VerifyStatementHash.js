@@ -34,7 +34,7 @@ app.http('VerifyStatementHash', {
 
             // Verify if the hash exists in the attestations
             const hashExists = await verifyHashExists(graphqlEndpoint, attesterAddress, contentHashSchemaUID, false, contentHashBytes32);
-            const revokedHashExists = false;
+            var revokedHashExists;
             if (!hashExists) {
                 revokedHashExists = await verifyHashExists(graphqlEndpoint, attesterAddress, contentHashSchemaUID, true, contentHashBytes32);
             }

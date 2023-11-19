@@ -50,10 +50,10 @@ app.http('AttestStatement', {
 
             // Wait for the transaction to be mined
             const newAttestationUID = await tx.wait();
-            context.log(`AttestationUID ${newAttestationUID}!`);
+            context.log(`AttestationUID ${newAttestationUID}`);
 
             // Return the Attestation UID in the response
-            return { body: `AttestationUID ${newAttestationUID}!` };
+            return { body: `${newAttestationUID}` };
 
         } catch (error) {
             // Log and return error details
